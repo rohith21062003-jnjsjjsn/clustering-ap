@@ -9,15 +9,20 @@ import plotly.express as px
 st.set_page_config(page_title="World Development Clustering", layout="wide")
 st.title("🌍 World Development Clustering App")
 
-# File Upload
-uploaded_file = st.file_uploader("Upload 'world_development.csv'", type="csv")
+# 1. FIX: Flexible File Uploader (Accepts CSV and Excel)
+uploaded_file = st.file_uploader("Upload your data file", type=["csv", "xlsx"])
 
 if uploaded_file:
-    df = pd.read_csv(uploaded_file)
+    # Handle the file type correctly
+    if uploaded_file.name.endswith('.csv'):
+        df = pd.read_csv(uploaded_file)
+    else:
+        df = pd.read_excel(uploaded_file)
     
-    # --- DATA CLEANING ---
-    def clean_numeric(value):
+    # --- DATA CLEANING FOR SYMBOLS ($ and ,) ---
+    def clean_currency_and_percent(value):
         if isinstance(value, str):
+            # Remove symbols that prevent math operations
             clean_val = value.replace('$', '').replace(',', '').replace('%', '').strip()
             try:
                 return float(clean_val)
@@ -25,13 +30,12 @@ if uploaded_file:
                 return np.nan
         return value
 
-    # Fix the object columns found in your dataset
-    cols_to_fix = ['GDP', 'Health Exp/Capita', 'Business Tax Rate', 'Tourism Inbound', 'Tourism Outbound']
-    for col in cols_to_fix:
-        if col in df.columns:
-            df[col] = df[col].apply(clean_numeric)
+    # Automatically clean all columns that look like text but should be numbers
+    for col in df.columns:
+        if df[col].dtype == 'object' and col != 'Country':
+            df[col] = df[col].apply(clean_currency_and_percent)
 
-    # Select only numeric columns and drop rows with missing values for the model
+    # Prepare numeric data for DBSCAN (dropping rows with missing values)
     numeric_df = df.select_dtypes(include=[np.number]).dropna()
     
     if not numeric_df.empty:
@@ -39,37 +43,30 @@ if uploaded_file:
         eps = st.sidebar.slider("Epsilon (Neighborhood Distance)", 0.1, 10.0, 3.0)
         min_samp = st.sidebar.slider("Min Samples (Cluster Density)", 2, 20, 5)
 
-        # --- MACHINE LEARNING PIPELINE ---
-        # 1. Scaling (Essential so GDP doesn't outweigh Birth Rate)
+        # 2. Scaling (Essential for mixed-scale data)
         scaler = StandardScaler()
         scaled_data = scaler.fit_transform(numeric_df)
 
-        # 2. DBSCAN Clustering
+        # 3. DBSCAN and PCA Visualization
         dbscan = DBSCAN(eps=eps, min_samples=min_samp)
         clusters = dbscan.fit_predict(scaled_data)
-        numeric_df['Cluster'] = clusters.astype(str) # Convert to string for better plotting colors
+        numeric_df['Cluster'] = clusters.astype(str)
 
-        # 3. PCA for 2D Visualization
         pca = PCA(n_components=2)
         pca_components = pca.fit_transform(scaled_data)
         numeric_df['PCA1'] = pca_components[:, 0]
         numeric_df['PCA2'] = pca_components[:, 1]
 
-        # --- VISUALIZATION ---
-        st.subheader("Interactive Development Clusters")
-        # Link back to original Country names if they exist
+        # Final Plot
+        st.subheader("Interactive Clusters")
         if 'Country' in df.columns:
             numeric_df['Country'] = df.loc[numeric_df.index, 'Country']
 
         fig = px.scatter(
             numeric_df, x='PCA1', y='PCA2', color='Cluster',
-            hover_data=['Country', 'GDP', 'Life Expectancy Female'],
-            title="PCA Projection of World Development Metrics",
-            color_discrete_sequence=px.colors.qualitative.Safe
+            hover_data=['Country'] if 'Country' in numeric_df.columns else None,
+            title="Development Clusters (Cleaned Data)"
         )
         st.plotly_chart(fig, use_container_width=True)
-
-        st.write(f"✅ Found {len(numeric_df['Cluster'].unique()) - (1 if '-1' in numeric_df['Cluster'].values else 0)} clusters.")
-        st.info("Cluster '-1' represents outlier countries that don't fit into a dense group.")
     else:
-        st.error("The dataset contains too many missing values. Try a cleaner version of the file.")
+        st.error("No numeric data found. Check if your file contains numbers!")
