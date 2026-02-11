@@ -3,33 +3,73 @@ import pandas as pd
 import numpy as np
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
-import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+import plotly.express as px
 
-st.title("DBSCAN Clustering App")
+st.set_page_config(page_title="World Development Clustering", layout="wide")
+st.title("🌍 World Development Clustering App")
 
-uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
+# File Upload
+uploaded_file = st.file_uploader("Upload 'world_development.csv'", type="csv")
 
-if uploaded_file is not None:
+if uploaded_file:
     df = pd.read_csv(uploaded_file)
-    st.write("Dataset Preview")
-    st.write(df.head())
+    
+    # --- DATA CLEANING ---
+    def clean_numeric(value):
+        if isinstance(value, str):
+            clean_val = value.replace('$', '').replace(',', '').replace('%', '').strip()
+            try:
+                return float(clean_val)
+            except ValueError:
+                return np.nan
+        return value
 
-    eps = st.slider("Select EPS value", 0.1, 5.0, 0.5)
-    min_samples = st.slider("Select Min Samples", 1, 20, 5)
+    # Fix the object columns found in your dataset
+    cols_to_fix = ['GDP', 'Health Exp/Capita', 'Business Tax Rate', 'Tourism Inbound', 'Tourism Outbound']
+    for col in cols_to_fix:
+        if col in df.columns:
+            df[col] = df[col].apply(clean_numeric)
 
-    scaler = StandardScaler()
-    scaled_data = scaler.fit_transform(df)
+    # Select only numeric columns and drop rows with missing values for the model
+    numeric_df = df.select_dtypes(include=[np.number]).dropna()
+    
+    if not numeric_df.empty:
+        st.sidebar.header("DBSCAN Parameters")
+        eps = st.sidebar.slider("Epsilon (Neighborhood Distance)", 0.1, 10.0, 3.0)
+        min_samp = st.sidebar.slider("Min Samples (Cluster Density)", 2, 20, 5)
 
-    model = DBSCAN(eps=eps, min_samples=min_samples)
-    clusters = model.fit_predict(scaled_data)
+        # --- MACHINE LEARNING PIPELINE ---
+        # 1. Scaling (Essential so GDP doesn't outweigh Birth Rate)
+        scaler = StandardScaler()
+        scaled_data = scaler.fit_transform(numeric_df)
 
-    df["Cluster"] = clusters
+        # 2. DBSCAN Clustering
+        dbscan = DBSCAN(eps=eps, min_samples=min_samp)
+        clusters = dbscan.fit_predict(scaled_data)
+        numeric_df['Cluster'] = clusters.astype(str) # Convert to string for better plotting colors
 
-    st.write("Clustered Data")
-    st.write(df)
+        # 3. PCA for 2D Visualization
+        pca = PCA(n_components=2)
+        pca_components = pca.fit_transform(scaled_data)
+        numeric_df['PCA1'] = pca_components[:, 0]
+        numeric_df['PCA2'] = pca_components[:, 1]
 
-    fig, ax = plt.subplots()
-    ax.scatter(df.iloc[:, 0], df.iloc[:, 1], c=clusters)
-    st.pyplot(fig)
+        # --- VISUALIZATION ---
+        st.subheader("Interactive Development Clusters")
+        # Link back to original Country names if they exist
+        if 'Country' in df.columns:
+            numeric_df['Country'] = df.loc[numeric_df.index, 'Country']
 
+        fig = px.scatter(
+            numeric_df, x='PCA1', y='PCA2', color='Cluster',
+            hover_data=['Country', 'GDP', 'Life Expectancy Female'],
+            title="PCA Projection of World Development Metrics",
+            color_discrete_sequence=px.colors.qualitative.Safe
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
+        st.write(f"✅ Found {len(numeric_df['Cluster'].unique()) - (1 if '-1' in numeric_df['Cluster'].values else 0)} clusters.")
+        st.info("Cluster '-1' represents outlier countries that don't fit into a dense group.")
+    else:
+        st.error("The dataset contains too many missing values. Try a cleaner version of the file.")
