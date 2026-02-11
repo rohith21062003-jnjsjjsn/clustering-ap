@@ -32,5 +32,4 @@ if uploaded_file is not None:
     ax.scatter(df.iloc[:, 0], df.iloc[:, 1], c=clusters)
     st.pyplot(fig)
 
-streamlit run app.py
 
