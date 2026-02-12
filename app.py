@@ -7,10 +7,13 @@ import matplotlib.pyplot as plt
 
 st.title("DBSCAN Clustering App")
 
-uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
+uploaded_file = st.file_uploader("Upload CSV File", type=["csv","xlsx"])
 
 if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file)
+    if uploaded_file.name.endswith('.csv'):
+        df=pd.read_csv(uploaded_file)
+    else:
+        df=pd.read_excel(uploaded_file)
     st.write("Dataset Preview")
     st.write(df.head())
 
@@ -31,3 +34,4 @@ if uploaded_file is not None:
     fig, ax = plt.subplots()
     ax.scatter(df.iloc[:, 0], df.iloc[:, 1], c=clusters)
     st.pyplot(fig)
+
