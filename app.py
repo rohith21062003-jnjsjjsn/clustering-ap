@@ -35,8 +35,9 @@ if uploaded_file is not None:
     st.write(df)
 
     fig, ax = plt.subplots()
-    ax.scatter(df.iloc[:, 0], df.iloc[:, 1], c=clusters)
+    ax.scatter(numeric_df.iloc[:, 0], numeric_df.iloc[:, 1], c=clusters)
     st.pyplot(fig)
+
 
 
 
