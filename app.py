@@ -30,6 +30,13 @@ if uploaded_file is not None:
     numeric_df=df.select_dtypes(include=['float64','int64'])
     scaled_data=scaler.fit_transform(numeric_df)
 
+    # create a dataframe with only the numbers(removes'country' names,etc)
+    numeric_df=df.select_dtypes(include=['float64','int64'])
+
+    scaler= standardscaler()
+    # use numeric_df instead of the full df
+    scaled_data=scaled=scaler.fit_transform(numeric_df)
+
     model = DBSCAN(eps=eps, min_samples=min_samples)
     clusters = model.fit_predict(scaled_data)
 
@@ -41,6 +48,7 @@ if uploaded_file is not None:
     fig, ax = plt.subplots()
     ax.scatter(numeric_df.iloc[:, 0], numeric_df.iloc[:, 1], c=clusters)
     st.pyplot(fig)
+
 
 
 
