@@ -20,6 +20,10 @@ if uploaded_file is not None:
     eps = st.slider("Select EPS value", 0.1, 5.0, 0.5)
     min_samples = st.slider("Select Min Samples", 1, 20, 5)
 
+    # create a version of the data with only numbers for the model
+    numeric_df=df.select_dtypes(include=['number'])
+    
+
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(df)
     #select only numeric columns for the math
@@ -37,6 +41,7 @@ if uploaded_file is not None:
     fig, ax = plt.subplots()
     ax.scatter(numeric_df.iloc[:, 0], numeric_df.iloc[:, 1], c=clusters)
     st.pyplot(fig)
+
 
 
 
