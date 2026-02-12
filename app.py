@@ -22,6 +22,9 @@ if uploaded_file is not None:
 
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(df)
+    #select only numeric columns for the math
+    numeric_df=df.select_dtypes(include=['float64','int64'])
+    scaled_data=scaler.fit_transform(numeric_df)
 
     model = DBSCAN(eps=eps, min_samples=min_samples)
     clusters = model.fit_predict(scaled_data)
@@ -34,5 +37,6 @@ if uploaded_file is not None:
     fig, ax = plt.subplots()
     ax.scatter(df.iloc[:, 0], df.iloc[:, 1], c=clusters)
     st.pyplot(fig)
+
 
 
