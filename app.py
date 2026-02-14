@@ -36,6 +36,14 @@ st.write("Clustered Output", df_numeric)
 st.write("Cluster Counts:")
 st.write(df_numeric["Cluster"].value_counts())
 
+st.write("Cluster counts:")
+st.write(df_numeric["Cluster"].value_counts())
+
+# Show number of noise points
+noise_points = (df_numeric["Cluster"] == -1).sum()
+st.write("Number of Noise Points (-1):", noise_points)
+
+
 
 
 
