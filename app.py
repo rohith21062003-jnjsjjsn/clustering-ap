@@ -23,10 +23,14 @@ st.write("Numeric Data Used for Clustering", df_numeric.head())
 scaler = StandardScaler()
 scaled_data = scaler.fit_transform(df_numeric)
 
-dbscan = DBSCAN(eps=0.5, min_samples=5)
+dbscan = DBSCAN(eps=1.2, min_samples=5)
 clusters = dbscan.fit_predict(scaled_data)
+
+st.write("cluster counts:")
+st.write(df_numerīc["cluster"].value_counts())
 
 df_numeric["Cluster"] = clusters
 st.write("Clustered Output", df_numeric)
+
 
 
