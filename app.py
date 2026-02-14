@@ -4,8 +4,13 @@ import streamlit as st
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import DBSCAN
 
-df = pd.read_csv("world_development_measurement.csv")
-st.write("Original Data", df.head())
+uploaded_file = st.file_uploader("Upload CSV file", type=["csv"])
+
+if uploaded_file is not None:
+    df = pd.read_csv(uploaded_file)
+    st.write("Original Data", df.head())
+else:
+    st.stop()
 
 # Select only numeric columns
 df_numeric = df.select_dtypes(include=[np.number])
@@ -23,3 +28,4 @@ clusters = dbscan.fit_predict(scaled_data)
 
 df_numeric["Cluster"] = clusters
 st.write("Clustered Output", df_numeric)
+
