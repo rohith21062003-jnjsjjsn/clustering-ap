@@ -16,6 +16,8 @@ if uploaded_file is not None:
         df=pd.read_excel(uploaded_file)
     st.write("Dataset Preview")
     st.write(df.head())
+    st.write(df.dtypes)
+    st.write(df.isnull().sum())
 
     eps = st.slider("Select EPS value", 0.1, 5.0, 0.5)
     min_samples = st.slider("Select Min Samples", 1, 20, 5)
@@ -26,28 +28,29 @@ if uploaded_file is not None:
 
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(df)
-    #select only numeric columns for the math
-    numeric_df=df.select_dtypes(include=['float64','int64'])
-    scaled_data=scaler.fit_transform(numeric_df)
+    import numpy as np
+    # select only numeric columns
+    df_numeric=df.select_dtypes(include=[np.number])
 
-    # create a dataframe with only the numbers(removes'country' names,etc)
-    numeric_df=df.select_dtypes(include=['float64','int64'])
+    # fill the missing values
+    df_numeric=df_numeric.fillna(df_numeric.mean())
 
-    scaler= standardscaler()
-    # use numeric_df instead of the full df
-    scaled_data=scaled=scaler.fit_transform(numeric_df)
+    scaled_data=scaler.fit_transform(df.numeric)
 
-    model = DBSCAN(eps=eps, min_samples=min_samples)
+    from sklearn.cluster import DBSCAN
+
+    dbscan=DBSCAN(eps=0.5,min_samples=5)
     clusters = model.fit_predict(scaled_data)
 
-    df["Cluster"] = clusters
+    df_numeric["Cluster"] = clusters
 
-    st.write("Clustered Data")
-    st.write(df)
+    st.write(df_numeric)
+    
 
     fig, ax = plt.subplots()
     ax.scatter(numeric_df.iloc[:, 0], numeric_df.iloc[:, 1], c=clusters)
     st.pyplot(fig)
+
 
 
 
