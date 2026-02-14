@@ -12,25 +12,30 @@ if uploaded_file is not None:
 else:
     st.stop()
 
-# Select only numeric columns
+# Select numeric columns
 df_numeric = df.select_dtypes(include=[np.number])
 
-# Handle missing values
+# Fill missing values
 df_numeric = df_numeric.fillna(df_numeric.mean())
 
-st.write("Numeric Data Used for Clustering", df_numeric.head())
-
+# Scaling
 scaler = StandardScaler()
 scaled_data = scaler.fit_transform(df_numeric)
 
-dbscan = DBSCAN(eps=1.2, min_samples=5)
+# DBSCAN
+dbscan = DBSCAN(eps=0.5, min_samples=5)
 clusters = dbscan.fit_predict(scaled_data)
 
-st.write("cluster counts:")
-st.write(df_numerīc["cluster"].value_counts())
-
+# Add cluster column
 df_numeric["Cluster"] = clusters
+
+# Show clustered data
 st.write("Clustered Output", df_numeric)
+
+# Show cluster counts (NOW it will work)
+st.write("Cluster Counts:")
+st.write(df_numeric["Cluster"].value_counts())
+
 
 
 
