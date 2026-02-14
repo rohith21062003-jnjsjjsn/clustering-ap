@@ -4,10 +4,10 @@ import streamlit as st
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import DBSCAN
 
-uploaded_file = st.file_uploader("Upload CSV file", type=["csv"])
+uploaded_file = st.file_uploader("Upload Excel file", type=["xlsx"])
 
 if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file)
+    df = pd.read_excel(uploaded_file)
     st.write("Original Data", df.head())
 else:
     st.stop()
@@ -28,4 +28,5 @@ clusters = dbscan.fit_predict(scaled_data)
 
 df_numeric["Cluster"] = clusters
 st.write("Clustered Output", df_numeric)
+
 
