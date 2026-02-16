@@ -40,7 +40,7 @@ df = df.loc[X.index]
 df["Cluster"] = clusters
 
 st.subheader("Clustered Data")
-        st.dataframe(df[[features[0], features[1], "Cluster"]].head(10))
+st.dataframe(df[[features[0], features[1], "Cluster"]].head(10))
 
         # Visualization
         st.subheader("Cluster Visualization")
@@ -54,6 +54,7 @@ st.subheader("Clustered Data")
         plt.xlabel(features[0])
         plt.ylabel(features[1])
         st.pyplot(plt)
+
 
 
 
