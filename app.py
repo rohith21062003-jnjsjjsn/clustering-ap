@@ -6,13 +6,16 @@ from sklearn.cluster import DBSCAN
 
 st.title("DBSCAN Clustering Application")
 
-# Upload file
-uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
+uploaded_file = st.file_uploader(
+    "Upload CSV or Excel File",
+    type=["csv", "xlsx"]
+)
 
 if uploaded_file:
-    df = pd.read_csv(uploaded_file)
-    st.subheader("Original Dataset")
-    st.dataframe(df.head())
+    if uploaded_file.name.endswith(".csv"):
+        df = pd.read_csv(uploaded_file)
+    else:
+        df = pd.read_excel(uploaded_file)
 
     # Select features
     numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns
@@ -47,3 +50,4 @@ if uploaded_file:
         plt.xlabel(features[0])
         plt.ylabel(features[1])
         st.pyplot(plt)
+
