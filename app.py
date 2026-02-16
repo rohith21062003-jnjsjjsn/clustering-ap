@@ -61,8 +61,8 @@ ax.scatter(df[features[0]], df[features[1]], c=df["Cluster"])
 ax.set_xlabel(features[0])
 ax.set_ylabel(features[1])
 st.pyplot(fig)
-else:
-    st.warning("Please select exactly 2 numeric features")
+
+
 
 
 
