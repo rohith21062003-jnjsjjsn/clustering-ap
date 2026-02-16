@@ -42,6 +42,23 @@ if uploaded_file is not None:
         df["Cluster"] = model.fit_predict(X_scaled)
 
         st.success("Clustering completed successfully")
+    
+    if "Cluster" in df.columns:
+
+    cluster_means = df.groupby("Cluster").mean(numeric_only=True)
+
+    sorted_clusters = cluster_means.mean(axis=1).sort_values().index
+
+    label_map = {
+        sorted_clusters[0]: "Underdeveloped",
+        sorted_clusters[1]: "Developing",
+        sorted_clusters[-1]: "Developed"
+    }
+
+    df["Development_Status"] = df["Cluster"].map(label_map)
+
+    st.dataframe(df[["Cluster", "Development_Status"]].head())
+    
         st.dataframe(df.head())
 
         fig, ax = plt.subplots()
@@ -52,23 +69,6 @@ if uploaded_file is not None:
 
     else:
         st.warning("Please select exactly 2 numeric features")
-    
-        # 🔥 Development Mapping MUST BE HERE
-    cluster_means = df.groupby("Cluster")[features].mea
-
-    category_map = {}
-
-    if len(sorted_clusters) >= 3:
-        category_map[sorted_clusters[0]] = "Underdeveloped"
-        category_map[sorted_clusters[1]] = "Developing"
-        category_map[sorted_clusters[2]] = "Developed"
-
-    category_map[-1] = "Outlier"
-
-    df["Development_Status"] = df["Cluster"].map(category_map)
-
-    st.subheader("Country Development Classification")
-    st.dataframe(df[[features[0], features[1], "Development_Status"]].head(10))
 
 
 
