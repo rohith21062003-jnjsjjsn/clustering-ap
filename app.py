@@ -1,77 +1,49 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import DBSCAN
 
-st.set_page_config(page_title="DBSCAN Clustering App", layout="wide")
+st.title("DBSCAN Clustering Application")
 
-st.title("📊 DBSCAN Clustering Application")
-
-# -----------------------------
 # Upload file
-# -----------------------------
-uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx"])
+uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
 
-if uploaded_file is not None:
-    df = pd.read_excel(uploaded_file)
-    st.subheader("🔍 Original Dataset")
+if uploaded_file:
+    df = pd.read_csv(uploaded_file)
+    st.subheader("Original Dataset")
     st.dataframe(df.head())
 
-    numeric_cols = df.select_dtypes(include=np.number).columns.tolist()
+    # Select features
+    numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns
+    features = st.multiselect("Select 2 Features for Clustering", numeric_cols)
 
-    st.subheader("⚙️ Feature Selection")
-    selected_cols = st.multiselect(
-        "Select numeric columns for clustering",
-        numeric_cols,
-        default=numeric_cols[:2]
-    )
+    if len(features) == 2:
+        X = df[features]
 
-    if len(selected_cols) >= 2:
-
-        eps = st.slider("Epsilon (eps)", 0.1, 5.0, 0.5)
-        min_samples = st.slider("Min Samples", 1, 10, 5)
-
-        df_numeric = df[selected_cols].dropna()
-
+        # Scaling
         scaler = StandardScaler()
-        scaled_data = scaler.fit_transform(df_numeric)
+        X_scaled = scaler.fit_transform(X)
 
-        dbscan = DBSCAN(eps=eps, min_samples=min_samples)
-        labels = dbscan.fit_predict(scaled_data)
+        # DBSCAN
+        dbscan = DBSCAN(eps=0.5, min_samples=5)
+        clusters = dbscan.fit_predict(X_scaled)
 
-        df_numeric["Cluster"] = labels
+        # Add cluster column
+        df["Cluster"] = clusters
 
-        st.subheader("📌 Cluster Counts")
-        st.write(df_numeric["Cluster"].value_counts())
+        st.subheader("Clustered Data")
+        st.dataframe(df[[features[0], features[1], "Cluster"]].head(10))
 
-        noise_points = (df_numeric["Cluster"] == -1).sum()
-        st.success(f"Number of Noise Points (-1): {noise_points}")
-
-        # -----------------------------
-        # Cluster Visualization
-        # -----------------------------
-        st.subheader("📈 Cluster Visualization")
-
-        x_axis = st.selectbox("X-axis", selected_cols, index=0)
-        y_axis = st.selectbox("Y-axis", selected_cols, index=1)
-
-        fig, ax = plt.subplots()
-        scatter = ax.scatter(
-            df_numeric[x_axis],
-            df_numeric[y_axis],
-            c=df_numeric["Cluster"]
+        # Visualization
+        st.subheader("Cluster Visualization")
+        plt.figure()
+        plt.scatter(
+            X[features[0]],
+            X[features[1]],
+            c=clusters,
+            cmap="tab10"
         )
-
-        ax.set_xlabel(x_axis)
-        ax.set_ylabel(y_axis)
-        ax.set_title("DBSCAN Cluster Scatter Plot")
-
-        st.pyplot(fig)
-
-        st.subheader("📄 Clustered Data")
-        st.dataframe(df_numeric)
-
-    else:
-        st.warning("Please select at least two numeric columns.")
+        plt.xlabel(features[0])
+        plt.ylabel(features[1])
+        st.pyplot(plt)
