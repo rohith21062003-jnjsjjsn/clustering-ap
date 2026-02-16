@@ -42,10 +42,10 @@ if uploaded_file is not None:
         df["Cluster"] = model.fit_predict(X_scaled)
 
         st.success("Clustering completed successfully")
-    
-    if "Cluster" in df.columns:
-
-    cluster_means = df.groupby("Cluster").mean(numeric_only=True)
+        if "Cluster" in df.columns:
+            st.subheader("cluster summary")
+            cluster_summary=cluster_means = df.groupby("Cluster").mean(numeric_only=True)
+            st.dataframe(cluster_summary)
 
     sorted_clusters = cluster_means.mean(axis=1).sort_values().index
 
@@ -69,6 +69,7 @@ if uploaded_file is not None:
 
     else:
         st.warning("Please select exactly 2 numeric features")
+
 
 
 
