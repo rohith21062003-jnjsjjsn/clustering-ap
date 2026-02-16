@@ -18,43 +18,45 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file is not None:
 
-    # Read File
     if uploaded_file.name.endswith(".csv"):
         df = pd.read_csv(uploaded_file)
     else:
         df = pd.read_excel(uploaded_file)
 
+    st.subheader("Dataset Preview")
     st.dataframe(df.head())
 
-    # Select Features
+    # ✅ MUST be here
     numeric_columns = df.select_dtypes(include=np.number).columns.tolist()
 
-features = st.multiselect(
-    "Select 2 Features for Clustering",
-    numeric_columns,
-    max_selections=2
-)
+    # ✅ MUST be here
+    features = st.multiselect(
+        "Select 2 Features for Clustering",
+        numeric_columns,
+        max_selections=2
+    )
 
-if len(features) == 2:
-    X = df[features]
-    
-    X = X.fillna(X.mean())
+    if len(features) == 2:
+        X = df[features]
+        X = X.fillna(X.mean())
 
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
 
-    dbscan = DBSCAN(eps=0.5, min_samples=5)
-    labels = dbscan.fit_predict(X_scaled)
+        dbscan = DBSCAN(eps=0.5, min_samples=5)
+        labels = dbscan.fit_predict(X_scaled)
 
-    df = df.loc[X.index]
-    df["Cluster"] = labels
+        df = df.loc[X.index]
+        df["Cluster"] = labels
 
-    st.dataframe(df.head())
+        st.success("Clustering completed successfully")
+        st.dataframe(df.head())
 
-else:
-    st.warning("Please select exactly 2 features")
+    else:
+        st.warning("Please select exactly 2 numeric features")
 
-    
+
+
 
     # 🔥 Development Mapping MUST BE HERE
     cluster_means = df.groupby("Cluster")[features].mean()
@@ -74,6 +76,7 @@ else:
 
     st.subheader("Country Development Classification")
     st.dataframe(df[[features[0], features[1], "Development_Status"]].head(10))
+
 
 
 
