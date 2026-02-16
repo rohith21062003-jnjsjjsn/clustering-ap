@@ -33,33 +33,26 @@ if uploaded_file is not None:
     features = st.multiselect(
         "Select 2 Features for Clustering",
         numeric_columns,
-        max_selections=2
-    )
+        max_selections=2)
 
-    I gif len(features) == 2:
-    # Select features
+    if len(features) == 2:
     X = df[features]
 
-    # Handle missing values
     X = X.fillna(X.mean())
 
-    # Scale the data
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
-    # Apply DBSCAN
     dbscan = DBSCAN(eps=0.5, min_samples=5)
     labels = dbscan.fit_predict(X_scaled)
 
-    # Add cluster labels
     df = df.loc[X.index]
     df["Cluster"] = labels
 
-    st.success("Clustering completed successfully")
     st.dataframe(df.head())
 
 else:
-    st.warning("Please select exactly 2 features for clustering")
+    st.warning("Please select exactly 2 features")
 
     # 🔥 Development Mapping MUST BE HERE
     cluster_means = df.groupby("Cluster")[features].mean()
@@ -79,6 +72,7 @@ else:
 
     st.subheader("Country Development Classification")
     st.dataframe(df[[features[0], features[1], "Development_Status"]].head(10))
+
 
 
 
