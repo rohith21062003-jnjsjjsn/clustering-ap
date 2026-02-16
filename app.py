@@ -38,47 +38,37 @@ if uploaded_file is not None:
 
     if len(features) == 2:
 
-        X = df[features]
+    X = df[features]
 
-        # Handle Missing Values
-        X = X.fillna(X.mean())
+    # Handle missing values
+    X = X.fillna(X.mean())
 
-        # Scaling
-        scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(X)
+    # Scaling
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
 
-        # DBSCAN Model
-        dbscan = DBSCAN(eps=0.5, min_samples=5)
-        clusters = dbscan.fit_predict(X_scaled)
+    # DBSCAN
+    dbscan = DBSCAN(eps=0.5, min_samples=5)
+    clusters = dbscan.fit_predict(X_scaled)
 
-        # Add Cluster Column
-        df = df.loc[X.index]
-        df["Cluster"] = clusters
+    df = df.loc[X.index]
+    df["Cluster"] = clusters
 
-        # Create Development Category Mapping
-cluster_means = df.groupby("Cluster")[features].mean()
+    # 🔥 Development Mapping MUST BE HERE
+    cluster_means = df.groupby("Cluster")[features].mean()
 
-# Sort clusters by first selected feature (example logic)
-sorted_clusters = cluster_means.sort_values(by=features[0]).index.tolist()
+    sorted_clusters = cluster_means.sort_values(by=features[0]).index.tolist()
 
-category_map = {}
+    category_map = {}
 
-if len(sorted_clusters) >= 3:
-    category_map[sorted_clusters[0]] = "Underdeveloped"
-    category_map[sorted_clusters[1]] = "Developing"
-    category_map[sorted_clusters[2]] = "Developed"
+    if len(sorted_clusters) >= 3:
+        category_map[sorted_clusters[0]] = "Underdeveloped"
+        category_map[sorted_clusters[1]] = "Developing"
+        category_map[sorted_clusters[2]] = "Developed"
 
-# Handle noise cluster (-1)
-category_map[-1] = "Outlier"
+    category_map[-1] = "Outlier"
 
-df["Development_Status"] = df["Cluster"].map(category_map)
+    df["Development_Status"] = df["Cluster"].map(category_map)
 
-st.subheader("Country Development Classification")
-st.dataframe(df[[features[0], features[1], "Development_Status"]].head(10))
-
-scatter = ax.scatter(
-    df[features[0]],
-    df[features[1]],
-    c=df["Cluster"]
-)
-
+    st.subheader("Country Development Classification")
+    st.dataframe(df[[features[0], features[1], "Development_Status"]].head(10))
