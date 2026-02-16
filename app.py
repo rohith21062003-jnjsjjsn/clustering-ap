@@ -58,8 +58,6 @@ if uploaded_file is not None:
     df["Development_Status"] = df["Cluster"].map(label_map)
 
     st.dataframe(df[["Cluster", "Development_Status"]].head())
-    
-        st.dataframe(df.head())
 
         fig, ax = plt.subplots()
         ax.scatter(df[features[0]], df[features[1]], c=df["Cluster"])
@@ -69,6 +67,7 @@ if uploaded_file is not None:
 
     else:
         st.warning("Please select exactly 2 numeric features")
+
 
 
 
