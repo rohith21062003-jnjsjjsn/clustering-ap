@@ -26,36 +26,42 @@ if uploaded_file is not None:
     st.subheader("Dataset Preview")
     st.dataframe(df.head())
 
-    # ✅ MUST be here
-    numeric_columns = df.select_dtypes(include=np.number).columns.tolist()
+    # Get numeric columns
+numeric_columns = df.select_dtypes(include=np.number).columns.tolist()
 
-    # ✅ MUST be here
-    features = st.multiselect(
-        "Select 2 Features for Clustering",
-        numeric_columns,
-        max_selections=2
-    )
+# Feature selection
+features = st.multiselect(
+    "Select exactly 2 features for clustering",
+    numeric_columns,
+    max_selections=2
+)
 
-    if len(features) == 2:
+# Clustering
+if len(features) == 2:
     X = df[features]
 
     # Handle missing values
     X = X.fillna(X.mean())
 
-    # Scale
+    # Scale data
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
-    # DBSCAN
+    # Apply DBSCAN
     dbscan = DBSCAN(eps=0.5, min_samples=5)
     labels = dbscan.fit_predict(X_scaled)
 
-    # Add Cluster column
+    # Add cluster column
     df = df.loc[X.index]
     df["Cluster"] = labels
 
-    st.subheader("Clustered Data")
+    st.success("Clustering completed successfully")
     st.dataframe(df.head())
+
+else:
+    st.warning("Please select exactly 2 numeric features")
+
+    
 
 else:
     st.warning("Please select exactly 2 numeric features")
@@ -76,6 +82,7 @@ else:
 
     st.subheader("Country Development Classification")
     st.dataframe(df[[features[0], features[1], "Development_Status"]].head(10))
+
 
 
 
