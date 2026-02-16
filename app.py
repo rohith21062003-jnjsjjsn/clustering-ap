@@ -37,21 +37,28 @@ if uploaded_file is not None:
     )
 
     if len(features) == 2:
-        X = df[features]
+    X = df[features]
 
     # Handle missing values
     X = X.fillna(X.mean())
 
-    # Scaling
+    # Scale data
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
-    # DBSCAN
+    # Apply DBSCAN
     dbscan = DBSCAN(eps=0.5, min_samples=5)
-    clusters = dbscan.fit_predict(X_scaled)
+    labels = dbscan.fit_predict(X_scaled)
 
+    # Add clusters back
     df = df.loc[X.index]
-    df["Cluster"] = clusters
+    df["Cluster"] = labels
+
+    st.success("Clustering completed successfully")
+    st.dataframe(df.head())
+
+else:
+    st.warning("Please select exactly 2 features")
 
     # 🔥 Development Mapping MUST BE HERE
     cluster_means = df.groupby("Cluster")[features].mean()
@@ -71,5 +78,6 @@ if uploaded_file is not None:
 
     st.subheader("Country Development Classification")
     st.dataframe(df[[features[0], features[1], "Development_Status"]].head(10))
+
 
 
