@@ -24,6 +24,9 @@ if uploaded_file:
     if len(features) == 2:
         X = df[features]
 
+        # Handle missing values
+        X=X.fillna(X.mean())
+
         # Scaling
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
@@ -32,8 +35,8 @@ if uploaded_file:
         dbscan = DBSCAN(eps=0.5, min_samples=5)
         clusters = dbscan.fit_predict(X_scaled)
 
-        # Add cluster column
-        df["Cluster"] = clusters
+        df=df.loc[x.index] #align rows
+        df["cluster"]=clusters
 
         st.subheader("Clustered Data")
         st.dataframe(df[[features[0], features[1], "Cluster"]].head(10))
@@ -50,4 +53,5 @@ if uploaded_file:
         plt.xlabel(features[0])
         plt.ylabel(features[1])
         st.pyplot(plt)
+
 
