@@ -19,9 +19,6 @@ uploaded_file = st.file_uploader(
 if uploaded_file is not None:
         df = pd.read_excel(uploaded_file)
 
-    st.subheader("Dataset Preview")
-    st.dataframe(df.head())
-
     # Get numeric columns
 numeric_columns = df.select_dtypes(include=np.number).columns.tolist()
 
@@ -73,6 +70,7 @@ else:
 
     st.subheader("Country Development Classification")
     st.dataframe(df[[features[0], features[1], "Development_Status"]].head(10))
+
 
 
 
