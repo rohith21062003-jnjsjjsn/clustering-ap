@@ -30,10 +30,7 @@ if uploaded_file is not None:
     # Select Features
     numeric_columns = df.select_dtypes(include=np.number).columns.tolist()
 
-    features = st.multiselect(
-        "Select 2 Features for Clustering",
-        numeric_columns,
-        max_selections=2)
+    features = st.multiselect("Select 2 Features for Clustering",numeric_columns,max_selections=2)
 
     if len(features) == 2:
     X = df[features]
@@ -72,6 +69,7 @@ else:
 
     st.subheader("Country Development Classification")
     st.dataframe(df[[features[0], features[1], "Development_Status"]].head(10))
+
 
 
 
