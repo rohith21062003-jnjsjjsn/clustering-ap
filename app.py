@@ -53,9 +53,7 @@ if uploaded_file is not None:
         if "Cluster" in df.columns:
 
             cluster_means = df.groupby("Cluster").mean(numeric_only=True)
-
-            df["Development_status"]=
-            df["Development_status"].fillna('Noise")
+            cluster_means = cluster_means.drop(index=-1, errors="ignore")
 
             if len(cluster_means) >= 3:
                 sorted_clusters = cluster_means.mean(axis=1).sort_values().index
@@ -87,6 +85,7 @@ if uploaded_file is not None:
 
     else:
         st.warning("Please select exactly 2 numeric features.")
+
 
 
 
