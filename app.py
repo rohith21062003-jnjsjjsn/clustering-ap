@@ -60,11 +60,6 @@ if len(features) == 2:
 
 else:
     st.warning("Please select exactly 2 numeric features")
-
-    
-
-else:
-    st.warning("Please select exactly 2 numeric features")
     
         # 🔥 Development Mapping MUST BE HERE
     cluster_means = df.groupby("Cluster")[features].mea
@@ -82,6 +77,7 @@ else:
 
     st.subheader("Country Development Classification")
     st.dataframe(df[[features[0], features[1], "Development_Status"]].head(10))
+
 
 
 
