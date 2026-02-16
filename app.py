@@ -37,8 +37,7 @@ if uploaded_file is not None:
     )
 
     if len(features) == 2:
-
-    X = df[features]
+        X = df[features]
 
     # Handle missing values
     X = X.fillna(X.mean())
@@ -72,4 +71,5 @@ if uploaded_file is not None:
 
     st.subheader("Country Development Classification")
     st.dataframe(df[[features[0], features[1], "Development_Status"]].head(10))
+
 
