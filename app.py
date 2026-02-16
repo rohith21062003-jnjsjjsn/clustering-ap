@@ -55,30 +55,30 @@ if uploaded_file is not None:
         df = df.loc[X.index]
         df["Cluster"] = clusters
 
-        # Show Cluster Preview
-        st.subheader("Clustered Data Preview")
-        st.dataframe(df[[features[0], features[1], "Cluster"]].head(10))
+        # Create Development Category Mapping
+cluster_means = df.groupby("Cluster")[features].mean()
 
-        # Show Cluster Summary
-        st.subheader("Cluster Summary")
-        st.write(df["Cluster"].value_counts())
+# Sort clusters by first selected feature (example logic)
+sorted_clusters = cluster_means.sort_values(by=features[0]).index.tolist()
 
-        # Plot
-        st.subheader("Cluster Visualization")
+category_map = {}
 
-        fig, ax = plt.subplots()
+if len(sorted_clusters) >= 3:
+    category_map[sorted_clusters[0]] = "Underdeveloped"
+    category_map[sorted_clusters[1]] = "Developing"
+    category_map[sorted_clusters[2]] = "Developed"
 
-        scatter = ax.scatter(
-            df[features[0]],
-            df[features[1]],
-            c=df["Cluster"]
-        )
+# Handle noise cluster (-1)
+category_map[-1] = "Outlier"
 
-        ax.set_xlabel(features[0])
-        ax.set_ylabel(features[1])
-        ax.set_title("DBSCAN Clustering")
+df["Development_Status"] = df["Cluster"].map(category_map)
 
-        st.pyplot(fig)
+st.subheader("Country Development Classification")
+st.dataframe(df[[features[0], features[1], "Development_Status"]].head(10))
 
-    else:
-        st.warning("Please select exactly 2 features.")
+scatter = ax.scatter(
+    df[features[0]],
+    df[features[1]],
+    c=df["Cluster"]
+)
+
