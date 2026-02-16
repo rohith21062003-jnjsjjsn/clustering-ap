@@ -72,3 +72,4 @@ if uploaded_file is not None:
 
     st.subheader("Country Development Classification")
     st.dataframe(df[[features[0], features[1], "Development_Status"]].head(10))
+
