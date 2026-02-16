@@ -59,7 +59,6 @@ if uploaded_file is not None:
 
     st.dataframe(df[["Cluster", "Development_Status"]].head())
 
-        fig, ax = plt.subplots()
         ax.scatter(df[features[0]], df[features[1]], c=df["Cluster"])
         ax.set_xlabel(features[0])
         ax.set_ylabel(features[1])
@@ -67,6 +66,7 @@ if uploaded_file is not None:
 
     else:
         st.warning("Please select exactly 2 numeric features")
+
 
 
 
