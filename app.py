@@ -56,10 +56,8 @@ if uploaded_file is not None:
     }
 df["Development_Status"] = df["Cluster"].map(label_map)
 st.dataframe(df[["Cluster", "Development_Status"]].head())
-ax.scatter(df[features[0]], df[features[1]], c=df["Cluster"])
-ax.set_xlabel(features[0])
-ax.set_ylabel(features[1])
-st.pyplot(fig)
+
+
 
 
 
