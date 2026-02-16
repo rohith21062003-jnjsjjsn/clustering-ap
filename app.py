@@ -24,7 +24,6 @@ if uploaded_file is not None:
     else:
         df = pd.read_excel(uploaded_file)
 
-    st.subheader("Original Dataset")
     st.dataframe(df.head())
 
     # Select Features
@@ -75,6 +74,7 @@ else:
 
     st.subheader("Country Development Classification")
     st.dataframe(df[[features[0], features[1], "Development_Status"]].head(10))
+
 
 
 
