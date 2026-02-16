@@ -37,9 +37,10 @@ clusters = dbscan.fit_predict(X_scaled)
 
 # Align rows correctly
 df = df.loc[X.index]
+
 df["Cluster"] = clusters
 
-st.subheader("Clustered Data")
+st.subheader("Clustered Data Preview")
 st.dataframe(df[[features[0], features[1], "Cluster"]].head(10))
 
         # Visualization
@@ -54,6 +55,7 @@ st.dataframe(df[[features[0], features[1], "Cluster"]].head(10))
         plt.xlabel(features[0])
         plt.ylabel(features[1])
         st.pyplot(plt)
+
 
 
 
